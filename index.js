@@ -1,32 +1,27 @@
-var url = require("url");
-var http = require("http");
-var fs = require("fs");
+const express = require("express");
+const app = express();
+const port = 8080;
+const path = require("path");
 
-http
-  .createServer((req, res) => {
-    var q = url.parse(req.url, true);
-    var filename = "." + q.pathname + ".html";
-    if (q.pathname === "/") {
-      fs.readFile("index.html", function (err, data) {
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.write(data);
-        res.end();
-      });
-    } else {
-      console.log(filename);
-      fs.readFile(filename, function (err, data) {
-        if (err) {
-          fs.readFile("404.html", function (err, data) {
-            res.writeHead(404, { "Content-Type": "text/html" });
-            res.write(data);
-            res.end();
-          });
-        } else {
-          res.writeHead(200, { "Content-Type": "text/html" });
-          res.write(data);
-          res.end();
-        }
-      });
-    }
-  })
-  .listen(8080);
+app.use("/static", express.static("public"));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname + "/index.html"));
+});
+
+app.get("/about", (req, res) => {
+  res.sendFile(path.join(__dirname + "/about.html"));
+});
+
+app.get("/contact-me", (req, res) => {
+  res.sendFile(path.join(__dirname + "/contact-me.html"));
+});
+
+app.use( (req, res, next) => {
+  res.status(404).sendFile(path.join(__dirname + "/404.html"));
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
+});
+
